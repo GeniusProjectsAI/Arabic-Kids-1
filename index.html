@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Арабский Язык: 9 Уроков</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Nunito:wght@400;600;700;800&display=swap');
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #fefae0;
+            background-image: radial-gradient(#faedcd 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .arabic-text {
+            font-family: 'Amiri', serif;
+            direction: rtl;
+            line-height: 1.8 !important; 
+            padding-top: 0.2em;
+            padding-bottom: 0.2em;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .shake {
+            animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes shake {
+            10%, 90% { transform: translate3d(-1px, 0, 0); }
+            20%, 80% { transform: translate3d(2px, 0, 0); }
+            30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
+        }
+
+        .btn-option {
+            transition: all 0.2s ease;
+        }
+        
+        .btn-option:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-option:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        /* --- СТИЛИ ДЛЯ ИГРЫ В КАРТОЧКИ (3 УРОВЕНЬ) --- */
+        .memory-card {
+            perspective: 1000px;
+            cursor: pointer;
+            aspect-ratio: 1 / 1; 
+            min-height: 100px;
+        }
+        .memory-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.4, 0.2, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .memory-card.flipped .memory-card-inner {
+            transform: rotateY(180deg);
+        }
+        .memory-card-front, .memory-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .memory-card-front {
+            background-color: #f8fafc;
+            border: 2px solid #e2e8f0;
+            background-image: radial-gradient(#cbd5e1 3px, transparent 3px);
+            background-size: 20px 20px;
+            transition: all 0.2s;
+        }
+        .memory-card-front:hover {
+            border-color: #14b8a6;
+            background-color: #f1f5f9;
+        }
+        .memory-card-back {
+            background-color: #ffffff;
+            border: 2px solid #14b8a6;
+            transform: rotateY(180deg);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            word-break: break-word;
+        }
+        .memory-card.matched .memory-card-back {
+            background-color: #ccfbf1;
+            border-color: #0d9488;
+            color: #115e59;
+        }
+
+        /* Стилизация скроллбара для меню уроков */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #fefae0;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #fde68a;
+            border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #fbbf24;
+        }
+
+        /* === RELAX MODE STYLES === */
+        #relaxCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .star-item {
+            position: absolute;
+            font-size: 1.8rem;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease;
+            animation: floatUp 3s ease-out forwards, spin 2s linear infinite;
+            z-index: 15;
+            filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+        }
+
+        .star-item:active {
+            transform: scale(1.3);
+        }
+
+        .star-item.collected {
+            animation: collectPop 0.4s ease-out forwards !important;
+            pointer-events: none;
+        }
+
+        @keyframes floatUp {
+            0% { 
+                transform: translateY(100px) rotate(0deg) scale(0.8); 
+                opacity: 0; 
+            }
+            10% { 
+                opacity: 1; 
+            }
+            90% { 
+                opacity: 1; 
+            }
+            100% { 
+                transform: translateY(-150px) rotate(360deg) scale(1.1); 
+                opacity: 0; 
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes collectPop {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(400px) rotate(720deg); opacity: 0; }
+        }
+
+        @keyframes gentlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+
+        .animate-gentle-pulse {
+            animation: gentlePulse 2s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 text-slate-800">
+
+<div class="bg-white rounded-3xl shadow-xl w-full max-w-xl overflow-hidden relative border-4 border-amber-100" id="game-wrapper">
+    
+    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-400 via-orange-400 to-teal-500"></div>
+
+    <!-- ЭКРАН 0: ВЫБОР УРОКА -->
+    <div id="screen-lesson-select" class="p-6 text-center fade-in">
+        <div class="text-6xl mb-4">📚</div>
+        <h1 class="text-3xl font-extrabold text-amber-600 mb-4">Курс Арабского</h1>
+        <p class="text-slate-500 mb-4">Выберите урок для изучения:</p>
+
+        <div class="grid gap-2 max-h-[60vh] overflow-y-auto pr-2 pb-2 custom-scrollbar">
+            <button onclick="selectLesson(1, 'Урок 1')" class="w-full bg-white border-2 border-teal-500 text-teal-700 hover:bg-teal-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📘 Урок 1: Знакомство (М) и цифры 1-4</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(2, 'Урок 2')" class="w-full bg-white border-2 border-amber-500 text-amber-700 hover:bg-amber-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📙 Урок 2: Знакомство (Ж) и цифры 5-8</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(3, 'Урок 3')" class="w-full bg-white border-2 border-orange-500 text-orange-700 hover:bg-orange-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📕 Урок 3: Как дела? (М) и порядковые 1-3</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(4, 'Урок 4')" class="w-full bg-white border-2 border-purple-500 text-purple-700 hover:bg-purple-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📓 Урок 4: Как дела? (Ж) и порядковые 4-10</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(5, 'Урок 5')" class="w-full bg-white border-2 border-indigo-500 text-indigo-700 hover:bg-indigo-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📖 Урок 5: Салих, счёт 1-5 и "Дай ручку"</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(6, 'Урок 6')" class="w-full bg-white border-2 border-rose-500 text-rose-700 hover:bg-rose-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>🗺️ Урок 6: Откуда ты? Да/Нет и бумага</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(7, 'Урок 7')" class="w-full bg-white border-2 border-emerald-500 text-emerald-700 hover:bg-emerald-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>🎒 Урок 7: Иса, сумки (Ж.Р.) и благодарность</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(8, 'Урок 8 (Ч.1)')" class="w-full bg-white border-2 border-cyan-500 text-cyan-700 hover:bg-cyan-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>🚗 Урок 8 (Ч.1): Машина, много/мало, счет 6-10</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(9, 'Урок 8 (Ч.2)')" class="w-full bg-white border-2 border-sky-500 text-sky-700 hover:bg-sky-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>📄 Урок 8 (Ч.2): Сколько сумок и листов?</span>
+                <span class="text-xl">➔</span>
+            </button>
+            <button onclick="selectLesson(10, 'Урок 9')" class="w-full bg-white border-2 border-fuchsia-500 text-fuchsia-700 hover:bg-fuchsia-50 font-bold py-3 px-4 rounded-xl text-md transition-all text-left flex items-center justify-between">
+                <span>🧭 Урок 9: Закрепление, "Здесь" и "Там"</span>
+                <span class="text-xl">➔</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ЭКРАН 1: СТАРТ УРОКА -->
+    <div id="screen-start" class="p-8 text-center hidden fade-in">
+        <div class="text-6xl mb-4">🏝️</div>
+        <h1 id="lesson-main-title" class="text-3xl font-extrabold text-amber-600 mb-2">Урок 1</h1>
+        <p class="text-slate-500 mb-8">Вам предстоит пройти 3 этапа закрепления слов!</p>
+        
+        <div class="text-left space-y-4 mb-8 bg-amber-50 p-4 rounded-xl border border-amber-100">
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🌴</span>
+                <div>
+                    <h3 class="font-bold text-slate-700">Этап 1: Караван</h3>
+                    <p class="text-sm text-slate-500">Учим слова (2 варианта ответа)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🏺</span>
+                <div>
+                    <h3 class="font-bold text-slate-700">Этап 2: Базар</h3>
+                    <p class="text-sm text-slate-500">Перевод на русский (4 варианта)</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-2xl">🗂️</span>
+                <div>
+                    <h3 class="font-bold text-slate-700">Этап 3: Карточки</h3>
+                    <p class="text-sm text-slate-500">Поиск парных слов (Мемори-игра)</p>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="startStage(1)" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-4 px-6 rounded-xl text-lg transition-colors shadow-lg shadow-teal-500/30">
+            Начать приключение
+        </button>
+        <button onclick="goToMenu()" class="w-full mt-3 bg-transparent text-slate-500 hover:text-slate-700 font-bold py-2 px-6 rounded-xl text-sm transition-colors">
+            Вернуться к выбору урока
+        </button>
+    </div>
+
+    <!-- ЭКРАН 2: ПЕРЕХОД МЕЖДУ ЭТАПАМИ -->
+    <div id="screen-transition" class="p-8 text-center hidden fade-in flex flex-col items-center justify-center min-h-[400px]">
+        <div id="transition-icon" class="text-7xl mb-4 animate-bounce"></div>
+        <h2 id="transition-title" class="text-3xl font-bold text-amber-600 mb-2"></h2>
+        <p id="transition-desc" class="text-slate-500 mb-8"></p>
+        <button onclick="continueToGame()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-6 rounded-xl text-lg transition-colors">
+            Продолжить
+        </button>
+    </div>
+
+    <!-- ЭКРАН 3: ИГРА -->
+    <div id="screen-game" class="p-6 hidden fade-in">
+        <div class="flex justify-between items-center mb-4">
+            <span id="level-badge" class="bg-amber-100 text-amber-700 px-3 py-1 rounded-full text-sm font-bold border border-amber-200">
+                Этап 1
+            </span>
+            <span id="score-display" class="font-bold text-teal-600">
+                Очки: 0
+            </span>
+        </div>
+
+        <div class="w-full bg-slate-100 h-2.5 rounded-full mb-6 overflow-hidden">
+            <div id="progress-bar" class="bg-teal-500 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+        
+        <!-- Карточка вопроса -->
+        <div id="question-card" class="bg-slate-50 rounded-2xl p-6 text-center mb-6 shadow-sm border border-slate-100 transition-transform duration-300 min-h-[160px] flex flex-col justify-center items-center">
+            <p id="question-hint" class="text-sm text-slate-400 mb-2 font-semibold uppercase tracking-wider"></p>
+            <div id="question-text" class="transition-all duration-300">?</div>
+        </div>
+
+        <!-- Контейнер для ответов или карточек -->
+        <div id="options-area" class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <!-- Сюда вставляются кнопки или карточки -->
+        </div>
+
+        <div id="feedback-area" class="mt-6 text-center h-8 font-bold text-lg opacity-0 transition-opacity">
+        </div>
+    </div>
+
+    <!-- ЭКРАН 4: RELAX MODE (ФИНАЛ УРОКА) -->
+    <canvas id="relaxCanvas" class="absolute inset-0 w-full h-full pointer-events-none z-0"></canvas>
+    <div id="screen-end" class="p-8 text-center hidden fade-in relative z-10">
+        <!-- Анимированный заголовок -->
+        <div class="relative inline-block mb-4">
+            <div class="text-7xl animate-bounce">🎉</div>
+            <div class="absolute -top-2 -right-2 text-3xl animate-ping">✨</div>
+        </div>
+        
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-500 via-amber-500 to-rose-500 mb-2 animate-pulse">
+            Маша Аллах! 🌟
+        </h1>
+        <p class="text-slate-600 mb-6 text-lg">Урок завершён! Отдохните и соберите звёзды ✨</p>
+        
+        <!-- Интерактивная зона для сбора звёзд -->
+        <div id="stars-container" class="relative w-full h-48 mb-6 bg-gradient-to-b from-amber-50/50 to-teal-50/50 rounded-2xl border-2 border-dashed border-amber-200 overflow-hidden cursor-crosshair">
+            <div class="absolute inset-0 flex items-center justify-center text-slate-400 text-sm pointer-events-none" id="stars-hint">
+                👆 Ловите звёзды для бонусных очков!
+            </div>
+            <!-- Звёзды будут добавляться здесь через JS -->
+        </div>
+        
+        <!-- Счёт и прогресс -->
+        <div class="bg-gradient-to-r from-teal-100 to-amber-100 rounded-xl p-4 mb-6 shadow-inner">
+            <p class="text-lg text-teal-800 font-bold">
+                Основной счёт: <span id="final-score" class="text-3xl text-teal-600 ml-2"></span>
+            </p>
+            <p class="text-sm text-amber-700 mt-1">
+                + <span id="bonus-score" class="font-bold">0</span> бонусных звёзд ✨
+            </p>
+            <div class="w-full bg-white/50 h-2 rounded-full mt-3 overflow-hidden">
+                <div id="bonus-progress" class="bg-gradient-to-r from-amber-400 to-rose-400 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="space-y-3">
+            <button onclick="goToMenu()" class="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all shadow-lg hover:shadow-amber-500/40 active:scale-95 flex items-center justify-center gap-2">
+                <span>📚</span> К списку уроков
+            </button>
+            <button onclick="restartRelax()" class="w-full bg-white border-2 border-teal-300 text-teal-600 hover:bg-teal-50 font-bold py-3 px-6 rounded-xl text-sm transition-all flex items-center justify-center gap-2">
+                <span>🔄</span> Ещё раз поймать звёзды
+            </button>
+        </div>
+        
+        <!-- Арабское поощрение -->
+        <div class="mt-6 p-3 bg-white/60 rounded-lg border border-amber-100">
+            <p class="arabic-text text-2xl text-amber-700 font-bold mb-1">أَحْسَنْتَ!</p>
+            <p class="text-xs text-slate-500">Молодец! Так держать! 💪</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ============================================
+    // БАЗА ДАННЫХ УРОКОВ
+    // ============================================
+    const lessonsDatabase = {
+        1: [ 
+            { word: 'وَاحِد', ru: 'Один', trans: 'Вахид' },
+            { word: 'اِثْنَان', ru: 'Два', trans: 'Итнан' },
+            { word: 'ثَلَاثَة', ru: 'Три', trans: 'Таляса' },
+            { word: 'أَرْبَعَة', ru: 'Четыре', trans: 'Арбаа' },
+            { word: 'السَّلَامُ عَلَيْكُمْ', ru: 'Мир вам', trans: 'Ас-саляму алейкум', isPhrase: true },
+            { word: 'وَعَلَيْكُمُ السَّلَام', ru: 'И вам мир', trans: 'Уа-алейкуму с-салям', isPhrase: true },
+            { word: 'مَا اسْمُكَ؟', ru: 'Как твоё имя? (м.р.)', trans: 'Ма исмука?', isPhrase: true },
+            { word: 'اِسْمِي مُحَمَّد', ru: 'Моё имя Мухаммад.', trans: 'Исмий Мухаммад', isPhrase: true },
+            { word: 'اِسْمِي فَضْل', ru: 'Моё имя Фадль.', trans: 'Исмий Фадль', isPhrase: true }
+        ],
+        2: [ 
+            { word: 'خَمْسَة', ru: 'Пять', trans: 'Хамса' },
+            { word: 'سِتَّة', ru: 'Шесть', trans: 'Ситта' },
+            { word: 'سَبْعَة', ru: 'Семь', trans: 'Сабиа' },
+            { word: 'ثَمَانِيَة', ru: 'Восемь', trans: 'Самания' },
+            { word: 'اِسْمِي خَوْلَةُ، مَا اسْمُكِ؟', ru: 'Моё имя Хавля, как твоё имя? (ж.р.)', trans: 'Исмий Хауляту, ма исмуки?', isPhrase: true },
+            { word: 'اِسْمِي خَدِيجَةُ', ru: 'Моё имя Хадиджа.', trans: 'Исмий Хадиджату', isPhrase: true },
+            { word: 'مَعَ السَّلَامَةِ', ru: 'С миром', trans: 'Ма\'а с-салямати', isPhrase: true }
+        ],
+        3: [ 
+            { word: 'تِسْعَة', ru: 'Девять', trans: 'Тиса' },
+            { word: 'عَشَرَة', ru: 'Десять', trans: 'Ашара' },
+            { word: 'الْأَوَّلُ', ru: 'Первый', trans: 'Аль-Авваль' },
+            { word: 'الثَّانِي', ru: 'Второй', trans: 'Ас-Сани' },
+            { word: 'الثَّالِثُ', ru: 'Третий', trans: 'Ас-Салис' },
+            { word: 'كَيْفَ حَالُكَ؟', ru: 'Как дела? (м.р.)', trans: 'Кайфа халюка?', isPhrase: true },
+            { word: 'أَنَا بِخَيْرٍ، وَالْحَمْدُ لِلَّهِ. وَكَيْفَ حَالُكَ أَنْتَ؟', ru: 'Я в порядке, хвала Аллаху. А как ты? (м.р.)', trans: 'Ана бихайрин, уаль-хамду лиллях. Уа кайфа халюка анта?', isPhrase: true },
+            { word: 'بِخَيْرٍ، وَالْحَمْدُ لِلَّهِ', ru: 'В порядке, хвала Аллаху.', trans: 'Бихайрин, уаль-хамду лиллях.', isPhrase: true }
+        ],
+        4: [ 
+            { word: 'كَيْفَ حَالُكِ يَا خَدِيجَةُ؟', ru: 'Как дела, о Хадиджа? (ж.р.)', trans: 'Кайфа халюки йа Хадиджату?', isPhrase: true },
+            { word: 'أَنَا بِخَيْرٍ، وَالْحَمْدُ لِلَّهِ. وَكَيْفَ حَالُكِ أَنْتِ؟', ru: 'Я в порядке, хвала Аллаху. А как ты? (ж.р.)', trans: 'Ана бихайрин, уаль-хамду лиллях. Уа кайфа халюки анти?', isPhrase: true },
+            { word: 'بِخَيْرٍ، وَالْحَمْدُ لِلَّهِ', ru: 'В порядке, хвала Аллаху.', trans: 'Бихайрин, уаль-хамду лиллях.', isPhrase: true },
+            { word: 'الرَّابِعُ', ru: 'Четвертый', trans: 'Ар-Раби' },
+            { word: 'الْخَامِسُ', ru: 'Пятый', trans: 'Аль-Хамис' },
+            { word: 'السَّادِسُ', ru: 'Шестой', trans: 'Ас-Садис' },
+            { word: 'السَّابِعُ', ru: 'Седьмой', trans: 'Ас-Саби' },
+            { word: 'الثَّامِنُ', ru: 'Восьмой', trans: 'Ас-Самин' },
+            { word: 'التَّاسِعُ', ru: 'Девятый', trans: 'Ат-Таси' },
+            { word: 'الْعَاشِرُ', ru: 'Десятый', trans: 'Аль-Ашир' }
+        ],
+        5: [
+            { word: 'صَالِح', ru: 'Салих (имя)', trans: 'Салих', isPhrase: true },
+            { word: 'وَاحِدٌ، اِثْنَان، ثَلَاثَةٌ', ru: 'Один, два, три', trans: 'Уахидун, иснан, салясатун', isPhrase: true },
+            { word: 'أَرْبَعَةٌ، خَمْسَةٌ', ru: 'Четыре, пять', trans: 'Арбаатун, хамсатун', isPhrase: true },
+            { word: 'السَّلَامُ عَلَيْكُمْ', ru: 'Мир вам', trans: 'Ас-саляму алейкум', isPhrase: true },
+            { word: 'وَعَلَيْكُمُ السَّلَامُ', ru: 'И вам мир', trans: 'Уа-алейкуму с-салям', isPhrase: true },
+            { word: 'هَاتِ قَلَمًا', ru: 'Дай ручку.', trans: 'Хати каляман', isPhrase: true }
+        ],
+        6: [
+            { word: 'سِتَّةٌ، سَبْعَةٌ، ثَمَانِيَةٌ', ru: 'Шесть, семь, восемь', trans: 'Ситтатун, сабаатун, саманияتун', isPhrase: true },
+            { word: 'تِسْعَةٌ، عَشَرَةٌ', ru: 'Девять, десять', trans: 'Тисаатун, ашаратун', isPhrase: true },
+            { word: 'مِنْ أَيْنَ أَنْتَ؟', ru: 'Откуда ты?', trans: 'Мин айна анта?', isPhrase: true },
+            { word: 'أَنَا مِنْ تُرْكِيَا، أَنَا تُرْكِيٌّ', ru: 'Я из Турции, я турок.', trans: 'Ана мин туркийя, ана туркийюн', isPhrase: true },
+            { word: 'هَلْ تَتَكَلَّمُ اللُّغَةَ الْعَرَبِيَّةَ يَا صَالِحُ؟', ru: 'Ты говоришь по-арабски, о Салих?', trans: 'Халь татакалламу ль-люгата ль-арабийята йа Салиху?', isPhrase: true },
+            { word: 'نَعَمْ', ru: 'Да', trans: 'На\'ам', isPhrase: true },
+            { word: 'لَا', ru: 'Нет', trans: 'Ля', isPhrase: true },
+            { word: 'هَاتِ قَلَمًا وَوَرَقَةً', ru: 'Дай ручку и бумагу.', trans: 'Хати каляман уа уаракатан', isPhrase: true }
+        ],
+        7: [
+            { word: 'عِيسَى', ru: 'Иса (имя)', trans: 'Иса', isPhrase: true },
+            { word: 'وَاحِدَةٌ', ru: 'Одна (ж.р.)', trans: 'Уахидатун', isPhrase: true },
+            { word: 'اِثْنَتَانِ، ثَلَاثٌ', ru: 'Две, три (ж.р.)', trans: 'Иснатяни, салясун', isPhrase: true },
+            { word: 'أَرْبَعٌ، خَمْسٌ', ru: 'Четыре, пять (ж.р.)', trans: 'Арбаун, хамсун', isPhrase: true },
+            { word: 'هَاتِ الْحَقِيبَةَ', ru: 'Дай сумку.', trans: 'Хати ль-хакыбата', isPhrase: true },
+            { word: 'خُذِ الْحَقِيبَةَ', ru: 'Возьми сумку.', trans: 'Хузи ль-хакыбата', isPhrase: true },
+            { word: 'جَزَاكَ اللَّهُ خَيْرًا', ru: 'Да воздаст тебе Аллах благом.', trans: 'Джазака-ллаху хайран', isPhrase: true },
+            { word: 'كَمْ حَقِيبَةً؟', ru: 'Сколько сумок?', trans: 'Кам хакыбатан?', isPhrase: true },
+            { word: 'خَمْسُ حَقَائِبَ', ru: 'Пять сумок.', trans: 'Хамсу хакаиба', isPhrase: true }
+        ],
+        8: [
+            { word: 'سِتّ', ru: 'Шесть (ж.р.)', trans: 'Ситт', isPhrase: false },
+            { word: 'أَيْنَ الْحَقِيبَةُ؟', ru: 'Где сумка?', trans: 'Айна ль-хакыбату?', isPhrase: true },
+            { word: 'سَبْع، ثَمَان', ru: 'Семь, восемь (ж.р.)', trans: 'Саб\', саман', isPhrase: true },
+            { word: 'أَيْنَ السَّيَّارَةُ؟', ru: 'Где машина?', trans: 'Айна с-саййарату?', isPhrase: true },
+            { word: 'تِسْع، عَشْر', ru: 'Девять, десять (ж.р.)', trans: 'Тис\', ашр', isPhrase: true },
+            { word: 'هٰذَا كَثِير!', ru: 'Это много!', trans: 'Хаза касир!', isPhrase: true },
+            { word: 'السَّيَّارَةُ هُنَا', ru: 'Машина здесь.', trans: 'Ас-саййарату хуна', isPhrase: true },
+            { word: 'هٰذَا قَلِيل!', ru: 'Это мало!', trans: 'Хаза калиль!', isPhrase: true }
+        ],
+        9: [
+            { word: 'كَمْ حَقِيبَةً يَا حَسَّانُ؟', ru: 'Сколько сумок, о Хассан?', trans: 'Кам хакыбатан йа Хассану?', isPhrase: true },
+            { word: 'ثَلَاثُ حَقَائِبَ', ru: 'Три сумки.', trans: 'Салясу хакаиба', isPhrase: true },
+            { word: 'هٰذَا قَلِيلٌ!', ru: 'Это мало!', trans: 'Хаза калиль!', isPhrase: true },
+            { word: 'كَمْ حَقِيبَةً يَا عَدْنَانُ؟', ru: 'Сколько сумок, о Аднан?', trans: 'Кам хакыбатан йа Аднану?', isPhrase: true },
+            { word: 'عَشْرُ حَقَائِبَ', ru: 'Десять сумок.', trans: 'Ашру хакаиба', isPhrase: true },
+            { word: 'هٰذَا كَثِيرٌ.', ru: 'Это много.', trans: 'Хаза касир.', isPhrase: true },
+            { word: 'أَيْنَ الْحَقِيبَةُ؟', ru: 'Где сумка?', trans: 'Айна ль-хакыбату?', isPhrase: true },
+            { word: 'الْحَقِيبَةُ هُنَا.', ru: 'Сумка здесь.', trans: 'Аль-хакыбату хуна.', isPhrase: true },
+            { word: 'كَمْ وَرَقَةً؟', ru: 'Сколько листов (бумаги)?', trans: 'Кам уаракатан?', isPhrase: true },
+            { word: 'اِثْنَتَانِ.', ru: 'Две (ж.р.).', trans: 'Иснатяни.', isPhrase: true },
+            { word: 'سَبْعٌ.', ru: 'Семь (ж.р.).', trans: 'Саб\'ун.', isPhrase: true }
+        ],
+        10: [
+            { word: 'هَاتِ قَلَمًا', ru: 'Дай ручку.', trans: 'Хати каляمان', isPhrase: true },
+            { word: 'هَاتِ قَلَمًا وَوَرَقَةً', ru: 'Дай ручку и бумагу.', trans: 'Хати каляман уа уаракатан', isPhrase: true },
+            { word: 'كَمْ حَقِيبَةً؟', ru: 'Сколько сумок?', trans: 'Кам хакыбатан?', isPhrase: true },
+            { word: 'هَاتِ الْحَقِيبَةَ', ru: 'Дай сумку.', trans: 'Хати ль-хакыбата', isPhrase: true },
+            { word: 'أَيْنَ السَّيَّارَةُ؟', ru: 'Где машина?', trans: 'Айна с-саййарату?', isPhrase: true },
+            { word: 'أَيْنَ الْحَقِيبَةُ؟', ru: 'Где сумка?', trans: 'Айна ль-хакыбату?', isPhrase: true },
+            { word: 'السَّيَّارَةُ هُنَا.', ru: 'Машина здесь.', trans: 'Ас-саййарату хуна.', isPhrase: true },
+            { word: 'السَّيَّارَةُ هُنَاكَ.', ru: 'Машина там.', trans: 'Ас-саййарату хунака.', isPhrase: true },
+            { word: 'هُنَا تِسْع.', ru: 'Здесь девять (ж.р.).', trans: 'Хуна тис\'.', isPhrase: true },
+            { word: 'هُنَا تِسْعَة.', ru: 'Здесь девять (м.р.).', trans: 'Хуна тисаа.', isPhrase: true }
+        ]
+    };
+
+    // ============================================
+    // КОНФИГУРАЦИЯ ЭТАПОВ
+    // ============================================
+    const stageConfigs = {
+        1: { title: "Караван", icon: "🌴", desc: "Выберите правильное арабское слово", qCount: 6 },
+        2: { title: "Шумный Базар", icon: "🏺", desc: "Вспомните перевод на русский", qCount: 8 },
+        3: { title: "Карточки", icon: "🗂️", desc: "Найдите пары: арабское слово и русский перевод", qCount: 4 }
+    };
+
+    // ============================================
+    // ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ИГРЫ
+    // ============================================
+    let selectedLessonId = 1;
+    let activeVocabulary = [];
+    let currentStageIndex = 1;
+    
+    let currentQuestionIndex = 0;
+    let correctAnswersCount = 0;
+    let initialQuestionsCount = 0;
+    let score = 0;
+    let questions = [];
+
+    // Переменные для 3 этапа (Мемори)
+    let memoryCards = [];
+    let flippedCards = [];
+    let matchedPairs = 0;
+
+    // Переменные для Relax Mode
+    let relaxInterval = null;
+    let bonusScore = 0;
+    let collectedStars = 0;
+    const maxStars = 15;
+    let confettiAnimationId = null;
+
+    // ============================================
+    // DOM ЭЛЕМЕНТЫ
+    // ============================================
+    const screens = {
+        lessonSelect: document.getElementById('screen-lesson-select'),
+        start: document.getElementById('screen-start'),
+        transition: document.getElementById('screen-transition'),
+        game: document.getElementById('screen-game'),
+        end: document.getElementById('screen-end')
+    };
+
+    // ============================================
+    // БАЗОВЫЕ ФУНКЦИИ НАВИГАЦИИ
+    // ============================================
+    function hideAllScreens() {
+        Object.values(screens).forEach(function(s) {
+            if (s) s.classList.add('hidden');
+        });
+    }
+
+    function goToMenu() {
+        // Очистка таймеров Relax Mode при выходе
+        cleanupRelaxMode();
+        
+        hideAllScreens();
+        if (screens.lessonSelect) {
+            screens.lessonSelect.classList.remove('hidden');
+        }
+    }
+
+    function selectLesson(lessonId, lessonName) {
+        selectedLessonId = lessonId;
+        activeVocabulary = lessonsDatabase[lessonId] || [];
+        score = 0;
+        
+        hideAllScreens();
+        var titleEl = document.getElementById('lesson-main-title');
+        if (titleEl) titleEl.innerText = lessonName;
+        
+        if (screens.start) {
+            screens.start.classList.remove('hidden');
+        }
+    }
+
+    function startStage(stageIndex) {
+        currentStageIndex = stageIndex;
+        currentQuestionIndex = 0;
+        correctAnswersCount = 0;
+        
+        hideAllScreens();
+        
+        if (screens.transition) {
+            screens.transition.classList.remove('hidden');
+        }
+        
+        var iconEl = document.getElementById('transition-icon');
+        var titleEl = document.getElementById('transition-title');
+        var descEl = document.getElementById('transition-desc');
+        
+        if (iconEl && stageConfigs[stageIndex]) {
+            iconEl.innerText = stageConfigs[stageIndex].icon;
+        }
+        if (titleEl && stageConfigs[stageIndex]) {
+            titleEl.innerText = 'Этап ' + stageIndex + ': ' + stageConfigs[stageIndex].title;
+        }
+        if (descEl && stageConfigs[stageIndex]) {
+            descEl.innerText = stageConfigs[stageIndex].desc;
+        }
+
+        if (stageIndex === 1 || stageIndex === 2) {
+            questions = generateQuestions(stageIndex);
+            initialQuestionsCount = questions.length;
+        }
+    }
+
+    function continueToGame() {
+        hideAllScreens();
+        
+        if (screens.game) {
+            screens.game.classList.remove('hidden');
+        }
+        
+        var badgeEl = document.getElementById('level-badge');
+        if (badgeEl && stageConfigs[currentStageIndex]) {
+            badgeEl.innerText = stageConfigs[currentStageIndex].icon + ' ' + stageConfigs[currentStageIndex].title;
+        }
+        
+        updateScore();
+        
+        if (currentStageIndex === 3) {
+            generateMemoryGame();
+        } else {
+            var qCard = document.getElementById('question-card');
+            if (qCard) qCard.classList.remove('hidden');
+            showQuestion();
+        }
+    }
+
+    // ============================================
+    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+    // ============================================
+    function shuffle(array) {
+        var arr = array.slice();
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr;
+    }
+
+    function generateQuestions(stage) {
+        var pool = shuffle(activeVocabulary);
+        var maxQuestions = Math.min(stageConfigs[stage].qCount, activeVocabulary.length);
+        var selectedItems = pool.slice(0, maxQuestions);
+
+        return selectedItems.map(function(item) {
+            var qText, hint, correctOpt, optType;
+            var optionsCount = stage === 1 ? 2 : 4;
+            optionsCount = Math.min(optionsCount, activeVocabulary.length);
+
+            if (stage === 1) {
+                qText = item.ru;
+                hint = 'Транскрипция: ' + item.trans;
+                correctOpt = item.word;
+                optType = 'word';
+            } else {
+                qText = item.word;
+                hint = item.isPhrase ? "Как переводится эта фраза?" : "Как это переводится?";
+                correctOpt = item.ru;
+                optType = 'ru';
+            }
+
+            var distractors = activeVocabulary
+                .filter(function(v) { return v !== item; })
+                .sort(function() { return Math.random() - 0.5; })
+                .slice(0, optionsCount - 1)
+                .map(function(v) { return v[optType]; });
+
+            var options = shuffle([correctOpt].concat(distractors));
+
+            return { 
+                question: qText, 
+                hint: hint, 
+                answer: correctOpt, 
+                options: options, 
+                isArabicOpt: optType === 'word' 
+            };
+        });
+    }
+
+    function showQuestion() {
+        var q = questions[currentQuestionIndex];
+        var qTextEl = document.getElementById('question-text');
+        
+        if (!q || !qTextEl) return;
+        
+        qTextEl.innerText = q.question;
+        
+        if (currentStageIndex === 2) {
+            qTextEl.className = q.question.length > 30 
+                ? 'text-4xl md:text-5xl font-bold text-slate-800 arabic-text leading-tight'
+                : 'text-6xl md:text-7xl font-bold text-slate-800 arabic-text';
+        } else {
+            qTextEl.className = 'text-3xl md:text-4xl font-bold text-slate-800 py-4';
+        }
+
+        var hintEl = document.getElementById('question-hint');
+        if (hintEl) hintEl.innerText = q.hint;
+        
+        var optionsArea = document.getElementById('options-area');
+        if (optionsArea) optionsArea.innerHTML = '';
+        
+        var feedbackArea = document.getElementById('feedback-area');
+        if (feedbackArea) feedbackArea.style.opacity = '0';
+
+        // Прогресс считается только по правильным ответам
+        var percent = initialQuestionsCount > 0 ? (correctAnswersCount / initialQuestionsCount) * 100 : 0;
+        var progressEl = document.getElementById('progress-bar');
+        if (progressEl) progressEl.style.width = percent + '%';
+
+        if (optionsArea) {
+            optionsArea.className = q.options.some(function(opt) { return opt.length > 25; }) 
+                ? "grid grid-cols-1 gap-3" 
+                : "grid grid-cols-1 gap-3 sm:grid-cols-2";
+        }
+
+        if (q.options && optionsArea) {
+            q.options.forEach(function(opt) {
+                var btn = document.createElement('button');
+                var baseClasses = 'btn-option w-full p-4 rounded-xl border-2 border-slate-200 bg-white font-bold text-slate-700 hover:border-teal-400 hover:bg-teal-50 focus:outline-none text-center flex flex-col items-center justify-center';
+                
+                if (q.isArabicOpt) {
+                    var textSize = opt.length > 25 ? 'text-xl md:text-2xl' : (opt.length > 15 ? 'text-2xl md:text-3xl' : 'text-4xl md:text-5xl');
+                    btn.className = baseClasses + ' arabic-text ' + textSize + ' py-4 leading-tight';
+                } else {
+                    var textSize = opt.length > 30 ? 'text-xs' : 'text-lg md:text-xl';
+                    btn.className = baseClasses + ' ' + textSize;
+                }
+
+                btn.innerText = opt;
+                btn.dataset.value = opt; 
+                btn.onclick = function() { checkAnswer(btn, opt, q.answer); };
+                optionsArea.appendChild(btn);
+            });
+        }
+    }
+
+    function checkAnswer(btn, selected, correct) {
+        var allBtns = document.querySelectorAll('.btn-option');
+        allBtns.forEach(function(b) { b.disabled = true; });
+        
+        var feedbackArea = document.getElementById('feedback-area');
+        var qCard = document.getElementById('question-card');
+
+        if (selected === correct) {
+            btn.classList.remove('border-slate-200', 'bg-white', 'hover:bg-teal-50', 'text-slate-700');
+            btn.classList.add('border-teal-500', 'bg-teal-500', 'text-white');
+            if (feedbackArea) {
+                feedbackArea.innerText = "✨ Отлично! Правильно.";
+                feedbackArea.className = "mt-6 text-center h-8 font-bold text-lg text-teal-600 transition-opacity";
+            }
+            
+            correctAnswersCount++;
+            score += 10;
+            updateScore();
+        } else {
+            btn.classList.remove('border-slate-200', 'bg-white', 'text-slate-700');
+            btn.classList.add('border-red-500', 'bg-red-50', 'text-red-700');
+            if (qCard) qCard.classList.add('shake');
+            if (feedbackArea) {
+                feedbackArea.innerText = "Ошибка! Мы повторим этот вопрос в конце.";
+                feedbackArea.className = "mt-6 text-center h-8 font-bold text-lg text-red-500 transition-opacity";
+            }
+            
+            allBtns.forEach(function(b) {
+                if(b.dataset.value === correct) {
+                    b.classList.remove('border-slate-200', 'text-slate-700');
+                    b.classList.add('border-teal-500', 'bg-teal-100', 'text-teal-900');
+                }
+            });
+            if (qCard) {
+                setTimeout(function() { qCard.classList.remove('shake'); }, 400);
+            }
+
+            // Вопрос уходит в конец
+            var qToRepeat = questions[currentQuestionIndex];
+            questions.push({
+                question: qToRepeat.question,
+                hint: qToRepeat.hint,
+                answer: qToRepeat.answer,
+                options: shuffle(qToRepeat.options.slice()),
+                isArabicOpt: qToRepeat.isArabicOpt
+            });
+        }
+        
+        if (feedbackArea) feedbackArea.style.opacity = '1';
+
+        setTimeout(function() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                showQuestion();
+            } else {
+                var progressEl = document.getElementById('progress-bar');
+                if (progressEl) progressEl.style.width = '100%';
+                setTimeout(nextStage, 500);
+            }
+        }, 3000);
+    }
+
+    // ============================================
+    // ЛОГИКА ДЛЯ 3 ЭТАПА (МЕМОРИ КАРТОЧКИ)
+    // ============================================
+    function generateMemoryGame() {
+        var qCard = document.getElementById('question-card');
+        if (qCard) qCard.classList.add('hidden');
+        
+        var progressEl = document.getElementById('progress-bar');
+        if (progressEl) progressEl.style.width = '0%';
+        
+        var feedbackArea = document.getElementById('feedback-area');
+        if (feedbackArea) feedbackArea.style.opacity = '0';
+        
+        var pool = shuffle(activeVocabulary);
+        var maxPairs = Math.min(4, pool.length);
+        pool = pool.slice(0, maxPairs);
+        
+        var cards = [];
+        
+        pool.forEach(function(item, index) {
+            cards.push({ id: 'ar_' + index, pairId: index, text: item.word, isArabic: true, flipped: false, matched: false });
+            cards.push({ id: 'ru_' + index, pairId: index, text: item.ru, isArabic: false, flipped: false, matched: false });
+        });
+        
+        // Умное перемешивание
+        var attempts = 0;
+        var validLayout = false;
+        
+        while (!validLayout && attempts < 200) {
+            memoryCards = shuffle(cards);
+            validLayout = true;
+            
+            for (var i = 0; i < memoryCards.length; i++) {
+                for (var j = i + 1; j < memoryCards.length; j++) {
+                    if (memoryCards[i].pairId === memoryCards[j].pairId) {
+                        var rowM1 = Math.floor(i / 2), colM1 = i % 2;
+                        var rowM2 = Math.floor(j / 2), colM2 = j % 2;
+                        var distM = Math.abs(rowM1 - rowM2) + Math.abs(colM1 - colM2);
+                        
+                        var rowD1 = Math.floor(i / 4), colD1 = i % 4;
+                        var rowD2 = Math.floor(j / 4), colD2 = j % 4;
+                        var distD = Math.abs(rowD1 - rowD2) + Math.abs(colD1 - colD2);
+
+                        if (distM <= 1 || distD <= 1) {
+                            validLayout = false; 
+                        }
+                    }
+                }
+            }
+            attempts++;
+        }
+        
+        matchedPairs = 0;
+        flippedCards = [];
+        
+        renderMemoryGrid();
+    }
+
+    function renderMemoryGrid() {
+        var optionsArea = document.getElementById('options-area');
+        if (!optionsArea) return;
+        
+        optionsArea.className = "grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4 mt-4";
+        optionsArea.innerHTML = '';
+
+        memoryCards.forEach(function(card, index) {
+            var cardEl = document.createElement('div');
+            cardEl.className = 'memory-card ' + (card.flipped || card.matched ? 'flipped' : '') + (card.matched ? 'matched' : '');
+            cardEl.onclick = (function(idx) { return function() { flipCard(idx); }; })(index);
+
+            var inner = document.createElement('div');
+            inner.className = 'memory-card-inner';
+
+            var front = document.createElement('div');
+            front.className = 'memory-card-front';
+
+            var back = document.createElement('div');
+            
+            var textClass = '';
+            if (card.isArabic) {
+                if (card.text.length > 35) {
+                    textClass = 'arabic-text text-lg md:text-xl leading-tight';
+                } else if (card.text.length > 15) {
+                    textClass = 'arabic-text text-xl md:text-2xl leading-tight';
+                } else {
+                    textClass = 'arabic-text text-3xl md:text-4xl';
+                }
+            } else {
+                if (card.text.length > 35) {
+                    textClass = 'text-[10px] md:text-xs leading-tight';
+                } else if (card.text.length > 20) {
+                    textClass = 'text-xs md:text-sm';
+                } else {
+                    textClass = 'text-sm md:text-base';
+                }
+            }
+            
+            back.className = 'memory-card-back font-bold text-slate-800 ' + textClass;
+            back.innerText = card.text;
+
+            inner.appendChild(front);
+            inner.appendChild(back);
+            cardEl.appendChild(inner);
+            optionsArea.appendChild(cardEl);
+        });
+    }
+
+    function flipCard(index) {
+        if (flippedCards.length >= 2) return; 
+        var card = memoryCards[index];
+        if (!card || card.flipped || card.matched) return; 
+
+        card.flipped = true;
+        flippedCards.push({ card: card, index: index });
+        updateCardDOM(index);
+
+        if (flippedCards.length === 2) {
+            checkMemoryMatch();
+        }
+    }
+
+    function updateCardDOM(index) {
+        var optionsArea = document.getElementById('options-area');
+        if (!optionsArea) return;
+        
+        var cardEl = optionsArea.children[index];
+        var card = memoryCards[index];
+        
+        if (!cardEl || !card) return;
+        
+        if (card.flipped || card.matched) {
+            cardEl.classList.add('flipped');
+        } else {
+            cardEl.classList.remove('flipped');
+        }
+        if (card.matched) {
+            cardEl.classList.add('matched');
+        }
+    }
+
+    function checkMemoryMatch() {
+        if (flippedCards.length < 2) return;
+        
+        var first = flippedCards[0];
+        var second = flippedCards[1];
+        var feedbackArea = document.getElementById('feedback-area');
+
+        if (first.card.pairId === second.card.pairId) {
+            first.card.matched = true;
+            second.card.matched = true;
+            matchedPairs++;
+            score += 20;
+            updateScore();
+            flippedCards = [];
+
+            updateCardDOM(first.index);
+            updateCardDOM(second.index);
+
+            if (feedbackArea) {
+                feedbackArea.innerText = "✨ Пара найдена!";
+                feedbackArea.className = "mt-6 text-center h-8 font-bold text-lg text-teal-600 transition-opacity opacity-100";
+                setTimeout(function() { if (feedbackArea) feedbackArea.style.opacity = '0'; }, 1500);
+            }
+
+            var totalPairsInGame = memoryCards.length / 2;
+            var percent = (matchedPairs / totalPairsInGame) * 100;
+            var progressEl = document.getElementById('progress-bar');
+            if (progressEl) progressEl.style.width = percent + '%';
+
+            if (matchedPairs === totalPairsInGame) { 
+                setTimeout(nextStage, 1500);
+            }
+        } else {
+            if (feedbackArea) {
+                feedbackArea.innerText = "Не совпадает!";
+                feedbackArea.className = "mt-6 text-center h-8 font-bold text-lg text-red-500 transition-opacity opacity-100";
+            }
+            
+            var optionsArea = document.getElementById('options-area');
+            if (optionsArea) {
+                if (optionsArea.children[first.index]) {
+                    optionsArea.children[first.index].classList.add('shake');
+                }
+                if (optionsArea.children[second.index]) {
+                    optionsArea.children[second.index].classList.add('shake');
+                }
+            }
+
+            setTimeout(function() {
+                first.card.flipped = false;
+                second.card.flipped = false;
+                updateCardDOM(first.index);
+                updateCardDOM(second.index);
+                
+                var optionsArea = document.getElementById('options-area');
+                if (optionsArea) {
+                    if (optionsArea.children[first.index]) {
+                        optionsArea.children[first.index].classList.remove('shake');
+                    }
+                    if (optionsArea.children[second.index]) {
+                        optionsArea.children[second.index].classList.remove('shake');
+                    }
+                }
+                flippedCards = [];
+                if (feedbackArea) feedbackArea.style.opacity = '0';
+            }, 1200);
+        }
+    }
+
+    function updateScore() {
+        var scoreEl = document.getElementById('score-display');
+        if (scoreEl) scoreEl.innerText = 'Очки: ' + score;
+    }
+
+    // ============================================
+    // RELAX MODE: ИНТЕРАКТИВНЫЕ ЗВЁЗДЫ И КОНФЕТТИ
+    // ============================================
+    
+    // Очистка ресурсов Relax Mode
+    function cleanupRelaxMode() {
+        if (relaxInterval) {
+            clearInterval(relaxInterval);
+            relaxInterval = null;
+        }
+        if (confettiAnimationId) {
+            cancelAnimationFrame(confettiAnimationId);
+            confettiAnimationId = null;
+        }
+        var canvas = document.getElementById('relaxCanvas');
+        if (canvas) {
+            var ctx = canvas.getContext('2d');
+            if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    }
+
+    function showRelaxScreen() {
+        cleanupRelaxMode(); // Очистка перед показом
+        
+        hideAllScreens();
+        if (screens.end) {
+            screens.end.classList.remove('hidden');
+        }
+        
+        // Сброс переменных
+        bonusScore = 0;
+        collectedStars = 0;
+        
+        var finalScoreEl = document.getElementById('final-score');
+        var bonusScoreEl = document.getElementById('bonus-score');
+        var bonusProgressEl = document.getElementById('bonus-progress');
+        
+        if (finalScoreEl) finalScoreEl.innerText = score;
+        if (bonusScoreEl) bonusScoreEl.innerText = '0';
+        if (bonusProgressEl) bonusProgressEl.style.width = '0%';
+        
+        // Очистка старых звёзд
+        var container = document.getElementById('stars-container');
+        if (container) {
+            container.innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-slate-400 text-sm pointer-events-none" id="stars-hint">👆 Ловите звёзды для бонусных очков!</div>';
+        }
+        
+        // Запуск конфетти на фоне
+        startConfetti();
+        
+        // Запуск генерации звёзд
+        startStarSpawner();
+    }
+
+    function startConfetti() {
+        var canvas = document.getElementById('relaxCanvas');
+        if (!canvas) return;
+        
+        var ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        
+        // Установка размеров канваса
+        function resizeCanvas() {
+            var wrapper = document.getElementById('game-wrapper');
+            if (wrapper) {
+                canvas.width = wrapper.offsetWidth;
+                canvas.height = wrapper.offsetHeight;
+            } else {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+        
+        var colors = ['#fbbf24', '#f87171', '#60a5fa', '#34d399', '#a78bfa', '#fb923c'];
+        var particles = [];
+        
+        // Создаём частицы
+        for (var i = 0; i < 50; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * -canvas.height,
+                size: Math.random() * 8 + 4,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                speed: Math.random() * 3 + 2,
+                rotation: Math.random() * 360,
+                rotationSpeed: (Math.random() - 0.5) * 4
+            });
+        }
+        
+        function animate() {
+            if (!ctx || !canvas) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(function(p) {
+                p.y += p.speed;
+                p.rotation += p.rotationSpeed;
+                
+                if (p.y > canvas.height + 20) {
+                    p.y = -20;
+                    p.x = Math.random() * canvas.width;
+                }
+                
+                ctx.save();
+                ctx.translate(p.x + p.size/2, p.y + p.size/2);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                ctx.restore();
+            });
+            
+            confettiAnimationId = requestAnimationFrame(animate);
+        }
+        animate();
+    }
+
+    function startStarSpawner() {
+        var container = document.getElementById('stars-container');
+        if (!container) return;
+        
+        var hint = document.getElementById('stars-hint');
+        if (hint) hint.style.display = 'none';
+        
+        // Очистка предыдущего интервала
+        if (relaxInterval) clearInterval(relaxInterval);
+        
+        relaxInterval = setInterval(function() {
+            if (collectedStars >= maxStars) {
+                clearInterval(relaxInterval);
+                relaxInterval = null;
+                return;
+            }
+            spawnStar(container);
+        }, 800);
+    }
+
+    function spawnStar(container) {
+        var star = document.createElement('div');
+        star.className = 'star-item';
+        var emojis = ['✨', '⭐', '🌟', '💫'];
+        star.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+        
+        // Случайная позиция по горизонтали
+        var leftPos = Math.random() * 80 + 10;
+        star.style.left = leftPos + '%';
+        star.style.bottom = '20px';
+        
+        // Случайная задержка и длительность анимации для разнообразия
+        var duration = 2.5 + Math.random() * 2;
+        star.style.animationDuration = duration + 's';
+        
+        // Обработчик клика
+        star.onclick = function(e) {
+            if (this.classList.contains('collected')) return;
+            
+            this.classList.add('collected');
+            collectedStars++;
+            bonusScore += 5;
+            
+            // Обновляем интерфейс
+            var bonusScoreEl = document.getElementById('bonus-score');
+            var bonusProgressEl = document.getElementById('bonus-progress');
+            var finalScoreEl = document.getElementById('final-score');
+            
+            if (bonusScoreEl) bonusScoreEl.innerText = bonusScore;
+            if (bonusProgressEl) bonusProgressEl.style.width = ((collectedStars / maxStars) * 100) + '%';
+            if (finalScoreEl) finalScoreEl.innerText = (score + bonusScore);
+            
+            // Эффект "попадания"
+            createPopEffect(e.clientX, e.clientY);
+            
+            // Удаляем через анимацию
+            var self = this;
+            setTimeout(function() { 
+                if (self.parentNode) self.remove(); 
+            }, 400);
+        };
+        
+        // Автоудаление, если не поймали
+        var self = star;
+        setTimeout(function() {
+            if (!self.classList.contains('collected') && self.parentNode) {
+                self.remove();
+            }
+        }, 3000);
+        
+        container.appendChild(star);
+    }
+
+    function createPopEffect(x, y) {
+        var pop = document.createElement('div');
+        pop.style.cssText = 'position:fixed;left:' + x + 'px;top:' + y + 'px;font-size:1.5rem;pointer-events:none;animation:collectPop 0.4s ease-out forwards;z-index:100;transform:translate(-50%,-50%);';
+        pop.innerHTML = '+5 ✨';
+        document.body.appendChild(pop);
+        setTimeout(function() { 
+            if (pop.parentNode) pop.remove(); 
+        }, 400);
+    }
+
+    function restartRelax() {
+        // Остановка и сброс
+        if (relaxInterval) {
+            clearInterval(relaxInterval);
+            relaxInterval = null;
+        }
+        collectedStars = 0;
+        bonusScore = 0;
+        
+        // Перезапуск интерфейса
+        var bonusScoreEl = document.getElementById('bonus-score');
+        var bonusProgressEl = document.getElementById('bonus-progress');
+        var finalScoreEl = document.getElementById('final-score');
+        
+        if (bonusScoreEl) bonusScoreEl.innerText = '0';
+        if (bonusProgressEl) bonusProgressEl.style.width = '0%';
+        if (finalScoreEl) finalScoreEl.innerText = score;
+        
+        var container = document.getElementById('stars-container');
+        if (container) {
+            container.innerHTML = '<div class="absolute inset-0 flex items-center justify-center text-slate-400 text-sm pointer-events-none" id="stars-hint">👆 Ловите звёзды для бонусных очков!</div>';
+        }
+        
+        startStarSpawner();
+    }
+
+    // ============================================
+    // ПЕРЕОПРЕДЕЛЕНИЕ nextStage ДЛЯ RELAX MODE
+    // ============================================
+    function nextStage() {
+        if (currentStageIndex < 3) {
+            startStage(currentStageIndex + 1);
+        } else {
+            showRelaxScreen();
+        }
+    }
+
+    // ============================================
+    // ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Проверка наличия всех необходимых элементов
+        if (!screens.lessonSelect || !screens.start || !screens.transition || !screens.game || !screens.end) {
+            console.error('Не все экраны найдены в DOM');
+            return;
+        }
+        
+        // Показываем экран выбора урока по умолчанию
+        hideAllScreens();
+        screens.lessonSelect.classList.remove('hidden');
+        
+        // Обработка изменения размера окна для канваса
+        window.addEventListener('resize', function() {
+            var canvas = document.getElementById('relaxCanvas');
+            if (canvas && !canvas.classList.contains('hidden')) {
+                var wrapper = document.getElementById('game-wrapper');
+                if (wrapper) {
+                    canvas.width = wrapper.offsetWidth;
+                    canvas.height = wrapper.offsetHeight;
+                }
+            }
+        });
+    });
+
+    // ============================================
+    // ОБРАБОТКА ВЫГРУЗКИ СТРАНИЦЫ (cleanup)
+    // ============================================
+    window.addEventListener('beforeunload', function() {
+        cleanupRelaxMode();
+    });
+</script>
+
+</body>
+</html>
